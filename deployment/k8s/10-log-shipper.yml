@@ -1,0 +1,78 @@
+kind: List
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: log-shipper
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: log-shipper
+        tier: log-shipper
+    template:
+      metadata:
+        name: log-shipper
+        labels:
+          app: log-shipper
+          tier: log-shipper
+      spec:
+        volumes:
+        - name: pv-logstash-data
+          persistentVolumeClaim:
+            claimName: pvclaim-logstash-data
+        - name: pv-rsyslog-spool
+          persistentVolumeClaim:
+            claimName: pvclaim-rsyslog-spool
+        containers:
+        - name: log-shipper
+          image: gsasig/logshipper:0.01
+          envFrom:
+          - configMapRef:
+              name: hub-config
+          env:
+          - name: REMOTE_SYSLOG_HOST
+            value: 172.31.11.185
+          - name: REMOTE_SYSLOG_PORT
+            value: 514
+          - name: REMOTE_SYSLOG_PROTOCOL
+            value: TCP
+          livenessProbe:
+            exec:
+              command:
+                - /usr/local/bin/docker-healthcheck.sh
+            initialDelaySeconds: 240
+            timeoutSeconds: 10
+            periodSeconds: 30
+            failureThreshold: 10
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 1
+              memory: 384M
+            limits:
+              memory: 384M
+          ports:
+          - containerPort: 514
+            protocol: TCP
+          volumeMounts:
+            - mountPath: "/var/lib/logstash/data"
+              name: pv-logstash-data
+            - mountPath: "/var/spool/rsyslog"
+              name: pvclaim-rsyslog-spool
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: log-shipper
+  spec:
+    ports:
+    - name: 514-tcp
+      protocol: TCP
+      port: 514
+      targetPort: 514
+    selector:
+      app: log-shipper
+  status:
+    loadBalancer: {}
+
