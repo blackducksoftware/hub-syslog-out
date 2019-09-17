@@ -1,0 +1,27 @@
+version: '3.6'
+services:
+  logshipper:
+    image: gsasig/logshipper:0.01
+    volumes:
+    - log-volume:/var/lib/logstash/data
+    - syslog-spool-volume:/var/spool/rsyslog
+    env_file: [blackduck-config.env]
+    environment:
+      DAYS_TO_KEEP_LOGS: 30
+      REMOTE_SYSLOG_HOST: "172.31.11.185"
+      REMOTE_SYSLOG_PORT: 514
+      REMOTE_SYSLOG_PROTOCOL: "TCP"
+    deploy:
+      mode: replicated
+      restart_policy: {condition: on-failure, delay: 5s, window: 60s}
+      resources:
+        limits: {memory: 1024M}
+        reservations: {memory: 1024M}
+    healthcheck:
+      test: [CMD, /usr/local/bin/docker-healthcheck.sh]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 200s
+volumes:
+  syslog-spool-volume: {}
