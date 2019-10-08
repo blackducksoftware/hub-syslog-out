@@ -18,10 +18,6 @@ items:
           app: log-shipper
           tier: log-shipper
       spec:
-        securityContext:
-          runAsUser: 101
-          runAsGroup: 102
-          # fsGroup: 101
         volumes:
         - name: pv-logstash-data
           persistentVolumeClaim:
@@ -31,6 +27,10 @@ items:
             claimName: pvclaim-rsyslog-spool
         containers:
         - name: log-shipper
+          securityContext:
+            runAsUser: 101
+            runAsGroup: 102
+            # fsGroup: 101
           image: gsasig/logshipper:0.01
           envFrom:
           - configMapRef:
