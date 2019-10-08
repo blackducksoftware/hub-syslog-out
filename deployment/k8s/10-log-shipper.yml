@@ -18,6 +18,10 @@ items:
           app: log-shipper
           tier: log-shipper
       spec:
+        securityContext:
+          runAsUser: 101
+          runAsGroup: 102
+          # fsGroup: 101
         volumes:
         - name: pv-logstash-data
           persistentVolumeClaim:

@@ -2,6 +2,7 @@ version: '3.6'
 services:
   logshipper:
     image: gsasig/logshipper:0.01
+    user:syslog:syslog
     volumes:
     - log-volume:/var/lib/logstash/data
     - syslog-spool-volume:/var/spool/rsyslog

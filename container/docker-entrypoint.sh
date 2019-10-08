@@ -22,6 +22,6 @@ echo "$LOGFILES" | awk -f /usr/local/lib/process.awk \
                    > $CONFIGFILE
 
 
-/usr/sbin/rsyslogd -n
+/usr/sbin/rsyslogd -n -i /var/run/rsyslogd/rsyslogd.pid ${LOGSHIPPER_OPTS}
 
 
