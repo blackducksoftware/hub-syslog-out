@@ -28,8 +28,8 @@ items:
         containers:
         - name: log-shipper
           securityContext:
-            runAsUser: 101
-            runAsGroup: 102
+            runAsUser: 1003110101
+            runAsGroup: 1003110101
             # fsGroup: 101
           image: gsasig/logshipper:0.01
           envFrom:
